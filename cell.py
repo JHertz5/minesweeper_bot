@@ -3,6 +3,7 @@
 
 class Cell():
 
+    DIMENSIONS = (16, 16)
 
     def __init__(self, left, top, width, height):
         self.left_top = (int(left), int(top))

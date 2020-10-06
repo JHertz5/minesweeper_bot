@@ -8,6 +8,7 @@
 import pyautogui
 import random
 from cell import Cell
+from grid import Grid
 
 class Agent():
 
@@ -37,20 +38,23 @@ class Agent():
                 raise Exception('Could not find start button')
 
         # get all coordinates fo all cells in grid
-        self.cells = [Cell(*cell_location) for cell_location in pyautogui.locateAllOnScreen('./blank.png')]
+        cells = [Cell(*cell_location) for cell_location in pyautogui.locateAllOnScreen('./blank.png')]
+        self.grid = Grid(cells)
+        
         # reveal random cell to start game
-        self.reveal_square(random.choice(self.cells))
+        rand_row = random.randint(0, self.grid.height-1)
+        rand_col = random.randint(0, self.grid.width-1)
+        self.reveal_square(rand_col, rand_row)
 
-    def reveal_square(self, cell):
+    def reveal_square(self, col, row):
         """
         Left click a given cell. Note that this will not affect revealed or
         flagged cells.
-        TODO check all cells for changes
         """
-        pyautogui.click(cell.centre, button='left')
-        cell.unknown = False
-        cell.state = self.COLOUR_NUMBER_MAPPING[pyautogui.pixel(*cell.centre)]
-        print(cell.state)
+        pyautogui.click(self.grid.cells[col][row].centre, button='left')
+        state = self.COLOUR_NUMBER_MAPPING[pyautogui.pixel(*self.grid.cells[col][row].centre)]
+        self.grid.reveal_square(col, row, state)
+        self.update_values()
 
     def flag_square(self, cell):
         """ 
@@ -69,26 +73,28 @@ class Agent():
     def update_values(self):
         """
         Check all cells and update any new values
+        # TODO find a way to make more concise. use get_item set_item in grid?
         """
         image = pyautogui.screenshot()
-        unknown_cells = [(index, cell) for index, cell in enumerate(self.cells) if cell.unknown == True]
-        for index, cell in unknown_cells:
-            # For each unkown cell, check whether state has been revealed. Empty
-            # cells and unrevealed cells are differentiated by the colour of
-            # the top left pixel of the cell.
-            state = self.COLOUR_NUMBER_MAPPING[image.getpixel((cell.centre[0], cell.centre[1]))]
-            if state != 0 or \
-               image.getpixel((cell.left_top[0], cell.left_top[1])) != (255, 255, 255):
-                self.cells[index].state = state
-                self.cells[index].unknown = False
+        for col in range(self.grid.width):
+            for row in range(self.grid.height):
+                if self.grid.cells[col][row].unknown == True:
+                    # For each unkown cell, check whether state has been revealed. Empty
+                    # cells and unrevealed cells are differentiated by the colour of
+                    # the top left pixel of the cell.
+                    state = self.COLOUR_NUMBER_MAPPING[image.getpixel((self.grid.cells[col][row].centre[0], self.grid.cells[col][row].centre[1]))]
+                    top_left_pixel_colour = image.getpixel((self.grid.cells[col][row].left_top[0], self.grid.cells[col][row].left_top[1]))
+                    if state != 0 or top_left_pixel_colour != (255, 255, 255):
+                        self.grid.cells[col][row].state = state
+                        self.grid.cells[col][row].unknown = False
 
 if __name__ == "__main__":
     agent = Agent()
     agent.start_game()
-    # agent.flag_square(agent.cells[0])
+    # agent.flag_square(agent.grid.cells[0])
     agent.update_values()
-    agent.reveal_square(agent.cells[0])
+    agent.reveal_square(0, 0)
     agent.update_values()
-    agent.reveal_square(agent.cells[1])
+    agent.reveal_square(1, 0)
     agent.update_values()
-    # agent.reveal_adj_squares(agent.cells[2])    
+    # agent.reveal_adj_squares(agent.grid.cells[2])    

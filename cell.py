@@ -7,7 +7,7 @@ class Cell():
 
     def __init__(self, left, top, width, height):
         self.left_top = (int(left), int(top))
-        self.centre = (left + width/2, top + height/2)
+        self.centre = (int(left + width/2), int(top + height/2))
         self.state = ' '
 
 if __name__ == "__main__":

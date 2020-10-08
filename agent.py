@@ -81,8 +81,8 @@ class Agent():
                     # For each unknown cell, check whether state has been revealed. Empty
                     # cells and unrevealed cells are differentiated by the colour of
                     # the top left pixel of the cell.
-                    state = self.COLOUR_NUMBER_MAPPING[image.getpixel((self.grid.cells[col][row].centre[0], self.grid.cells[col][row].centre[1]))]
-                    top_left_pixel_colour = image.getpixel((self.grid.cells[col][row].left_top[0], self.grid.cells[col][row].left_top[1]))
+                    state = self.COLOUR_NUMBER_MAPPING[image.getpixel((self.grid.cells[col][row].centre))]
+                    top_left_pixel_colour = image.getpixel((self.grid.cells[col][row].left_top))
                     if state != 0 or top_left_pixel_colour != (255, 255, 255):
                         self.grid.cells[col][row].state = state
 

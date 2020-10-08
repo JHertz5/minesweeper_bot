@@ -61,7 +61,6 @@ class Agent():
         Right click a given cell. Note that this will not affect revealed cells
         """
         pyautogui.click(cell.centre, button='right')
-        cell.unknown = False
 
     def reveal_adj_squares(self, cell):
         """
@@ -78,15 +77,14 @@ class Agent():
         image = pyautogui.screenshot()
         for col in range(self.grid.width):
             for row in range(self.grid.height):
-                if self.grid.cells[col][row].unknown == True:
-                    # For each unkown cell, check whether state has been revealed. Empty
+                if self.grid.cells[col][row].state == ' ':
+                    # For each unknown cell, check whether state has been revealed. Empty
                     # cells and unrevealed cells are differentiated by the colour of
                     # the top left pixel of the cell.
                     state = self.COLOUR_NUMBER_MAPPING[image.getpixel((self.grid.cells[col][row].centre[0], self.grid.cells[col][row].centre[1]))]
                     top_left_pixel_colour = image.getpixel((self.grid.cells[col][row].left_top[0], self.grid.cells[col][row].left_top[1]))
                     if state != 0 or top_left_pixel_colour != (255, 255, 255):
                         self.grid.cells[col][row].state = state
-                        self.grid.cells[col][row].unknown = False
 
 if __name__ == "__main__":
     agent = Agent()

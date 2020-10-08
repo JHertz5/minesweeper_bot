@@ -9,7 +9,6 @@ class Cell():
         self.left_top = (int(left), int(top))
         self.centre = (left + width/2, top + height/2)
         self.state = ' '
-        self.unknown = True
 
 if __name__ == "__main__":
     pass

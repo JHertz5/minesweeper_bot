@@ -6,35 +6,59 @@ from cell import Cell
 class Grid():
 
     def __init__(self, cells):
-        self.width  = int((cells[-1].centre[0] - cells[0].centre[0])/Cell.DIMENSIONS[0] + 1)
-        self.height = int((cells[-1].centre[1] - cells[0].centre[1])/Cell.DIMENSIONS[1] + 1)
-        self.cells = [[cells[row*self.width + col] for row in range(self.height)] for col in range(self.width)]
+        self.width  = int((cells[-1].left_top[0] - cells[0].left_top[0])/Cell.DIMENSIONS[0] + 1)
+        self.height = int((cells[-1].left_top[1] - cells[0].left_top[1])/Cell.DIMENSIONS[1] + 1)
+        self.cells = [[cells[row*self.width + col] for col in range(self.width)] for row in range(self.height)]
+        for row in range(self.height):
+            for col in range(self.width):
+                self.cells[row][col].location = (row, col)
     
-    def __getitem__(self, xy):
-        row, col = xy
-        return self.cells[row][col]
+    def __str__(self):
+        print_str  = '┌' + '─' * (self.width * 2 + 1) + '┐\n'
+        for row in range(self.height):
+            print_str += '│ ' + ' '.join([str(cell) for cell in self.cells[row]]) + ' │\n'
+        print_str += '└' + '─' * (self.width * 2 + 1) + '┘\n'
 
-    def reveal_square(self, col, row, state):
+        return str(print_str)
+    
+    def get_neighbours(self, row, col):
         """
-        Left click a given cell. Note that this will not affect revealed or
-        flagged cells.
+        Get each neighbour of cell.
         """
-        self.cells[col][row].state = state
-        print(self.cells[col][row].state)
+        neighbour_location_diffs = [(-1, -1),
+                                    ( 0, -1),
+                                    ( 1, -1),
+                                    ( 1,  0),
+                                    ( 1,  1),
+                                    ( 0,  1),
+                                    (-1,  1),
+                                    (-1,  0)]
+        neighbours = []
+        for diff in neighbour_location_diffs:
+            if (row + diff[0] >= 0 and
+                row + diff[0] < self.height and
+                col + diff[1] >= 0 and
+                col + diff[1] < self.width):
+                neighbours.append(self.cells[row + diff[0]][col + diff[1]])
+        return neighbours
 
-    def flag_square(self, col, row):
-        """ 
-        Right click a given cell. Note that this will not affect revealed cells
+    def get_unknown_neighbours(self, row, col):
         """
-        pass
+        Returns numbers of cells adjeacent to (row, col) that are unknown
+        """
+        return [cell for cell in self.get_neighbours(row, col) if cell.state == None ]
 
-    def reveal_adj_squares(self, cell):
+    def get_flagged_neighbours(self, row, col):
         """
-        Middle click a given cell. Note that this will not affect unrevealed
-        squares.
+        Returns numbers of cells adjeacent to (row, col) that are flags
         """
-        # pyautogui.click(cell.centre, button='middle')
+        return [cell for cell in self.get_neighbours(row, col) if cell.state == 'X']
 
+    def get_numbered_neighbours(self, row, col):
+        """
+        Returns numbers of cells adjeacent to (row, col) that are numbered.
+        """
+        return [cell for cell in self.get_neighbours(row, col) if type(cell.state) is int]
 
 if __name__ == "__main__":
     pass

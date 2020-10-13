@@ -40,6 +40,8 @@ class Solver():
         reveal_cells = []
         reveal_adj_cells = []
         flag_cells = []
+        guess_cell = []
+        guess_chance = 1
         for row in range(grid.height):
             for col in range(grid.width):
                 state = grid.cells[row][col].state
@@ -53,6 +55,14 @@ class Solver():
                             reveal_cells += [cell for cell in unknown_neighbours]
                         elif num_unflagged_mine_neighbours == len(unknown_neighbours):
                             flag_cells += [cell for cell in unknown_neighbours]
+                        elif num_unflagged_mine_neighbours/len(unknown_neighbours) < guess_chance:
+                            guess_cell = unknown_neighbours[0]
+                            guess_chance = num_unflagged_mine_neighbours/len(unknown_neighbours)
+        if reveal_adj_cells == [] and flag_cells == []:
+            # If no deterministic option, guess where to place a flag
+            # Note that the guessing mechanism is very unsuccessful
+            print('Guessing next flag, prob of bomb={}'.format(guess_chance))
+            flag_cells += [guess_cell]
         return set(reveal_adj_cells), set(flag_cells)
 
 if __name__ == "__main__":

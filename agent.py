@@ -28,14 +28,13 @@ class Agent():
 
     def start_game(self):
         self.start_location = pyautogui.locateCenterOnScreen('./game_over.png')
-        if self.start_location is not None:
-            pyautogui.click(self.start_location)
-        else:
+        if self.start_location is None:
             self.start_location = pyautogui.locateCenterOnScreen('./start.png')
-            if self.start_location is not None:
-                pyautogui.click(self.start_location)
-            else:
-                raise Exception('Could not find start button')
+        if self.start_location is None:
+            self.start_location = pyautogui.locateCenterOnScreen('./win.png')
+        if self.start_location is None:
+            raise Exception('Could not find start button')
+        pyautogui.click(self.start_location)
 
         # get all coordinates fo all cells in grid
         cells = [Cell(*cell_location) for cell_location in pyautogui.locateAllOnScreen('./blank.png')]
